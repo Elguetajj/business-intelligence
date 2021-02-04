@@ -13,6 +13,16 @@ services:
     networks:
       - BI_network
 
+  postgres:
+    image: postgres
+    container_name: airflow_db
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    networks:
+      - BI_network
+
   scheduler:
     image: apache/airflow
     container_name: airflow_scheduler_BI
@@ -25,9 +35,11 @@ services:
     volumes:
         - ./dags:/opt/airflow/dags
         - ./scripts:/opt/airflow/scripts
+        - ./data:/opt/airflow/data
+        - ./logs:/opt/airflow/logs
+
     networks: 
         - "BI_network"
-
 
   airflow:
     image: apache/airflow
@@ -42,6 +54,9 @@ services:
     volumes:
         - ./dags:/opt/airflow/dags
         - ./scripts:/opt/airflow/scripts
+        - ./data:/opt/airflow/data
+        - ./logs:/opt/airflow/logs
+
     ports:
         - "8080:8080"
     networks: 
