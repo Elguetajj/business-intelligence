@@ -13,54 +13,97 @@ services:
     networks:
       - BI_network
 
-  postgres:
-    image: postgres
-    container_name: airflow_db
-    environment:
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=airflow
-      - POSTGRES_DB=airflow
-    networks:
-      - BI_network
+  # postgres:
+  #   image: postgres
+  #   container_name: airflow_db
+  #   environment:
+  #     - POSTGRES_USER=airflow
+  #     - POSTGRES_PASSWORD=airflow
+  #     - POSTGRES_DB=airflow
+  #   networks:
+  #     - BI_network
 
-  scheduler:
-    image: apache/airflow
-    container_name: airflow_scheduler_BI
-    entrypoint: ./scripts/scheduler_entrypoint.sh
-    restart: always
-    depends_on:
-        - db
-    env_file:
-        - .env
-    volumes:
-        - ./dags:/opt/airflow/dags
-        - ./scripts:/opt/airflow/scripts
-        - ./data:/opt/airflow/data
-        - ./logs:/opt/airflow/logs
+  # scheduler:
+  #   image: apache/airflow
+  #   container_name: airflow_scheduler_BI
+  #   entrypoint: ./scripts/sc_entrypoint.sh
+  #   restart: always
+  #   depends_on:
+  #       - db
+  #   env_file:
+  #       - .env
+  #   volumes:
+  #       - ./dags:/opt/airflow/dags
+  #       - ./scripts:/opt/airflow/scripts
+  #       - ./data:/opt/airflow/data
+  #       - ./logs:/opt/airflow/logs
+  #   networks: 
+  #       - "BI_network"
 
-    networks: 
-        - "BI_network"
+  # airflow:
+  #   image: apache/airflow
+  #   container_name: airflow_webserver_BI
+  #   entrypoint: ./scripts/ws_entrypoint.sh
+  #   restart: always
+  #   depends_on:
+  #       - db
+  #       - scheduler
+  #   env_file:
+  #       - .env
+  #   volumes:
+  #       - ./dags:/opt/airflow/dags
+  #       - ./scripts:/opt/airflow/scripts
+  #       - ./data:/opt/airflow/data
+  #       - ./logs:/opt/airflow/logs
+  #   ports:
+  #       - "8080:8080"
+  #   networks: 
+  #     - "BI_network"
 
-  airflow:
-    image: apache/airflow
-    container_name: airflow_webserver_BI
-    entrypoint: ./scripts/webserver_entrypoint.sh
-    restart: always
-    depends_on:
-        - db
-        - scheduler
-    env_file:
-        - .env
-    volumes:
-        - ./dags:/opt/airflow/dags
-        - ./scripts:/opt/airflow/scripts
-        - ./data:/opt/airflow/data
-        - ./logs:/opt/airflow/logs
 
-    ports:
-        - "8080:8080"
-    networks: 
-      - "BI_network"
+  # worker:
+  #   image: apache/airflow
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - ./airflow_files/dags:/opt/airflow/dags
+  #     - ./logs:/opt/airflow/logs
+  #     - ./data:/opt/airflow/data
+  #   command: celery worker
+  #   depends_on:
+  #     - scheduler
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 8s
+  #       max_attempts: 3
+  #   networks:
+  #     - BI_network
+
+
+
+
+  # airflow:
+  #   image: apache/airflow
+  #   container_name: airflow
+  #   entrypoint: ./scripts/entrypoint.sh
+  #   restart: always
+  #   depends_on:
+  #       - db
+  #   env_file:
+  #       - .env
+  #   volumes:
+  #       - ./dags:/opt/airflow/dags
+  #       - ./scripts:/opt/airflow/scripts
+  #       - ./data:/opt/airflow/data
+  #   ports:
+  #       - "8080:8080"
+  #   networks: 
+  #     - "BI_network"
+
+
+  
+
   
   adminer:
     image: adminer
