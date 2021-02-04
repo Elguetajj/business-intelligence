@@ -1,0 +1,61 @@
+version: "3"
+services: 
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=jje
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=business_intelligence
+    container_name: postgres_BI
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d/:ro
+    networks:
+      - BI_network
+
+  scheduler:
+    image: apache/airflow
+    container_name: airflow_scheduler_BI
+    entrypoint: ./scripts/scheduler_entrypoint.sh
+    restart: always
+    depends_on:
+        - db
+    env_file:
+        - .env
+    volumes:
+        - ./dags:/opt/airflow/dags
+        - ./scripts:/opt/airflow/scripts
+    networks: 
+        - "BI_network"
+
+
+  airflow:
+    image: apache/airflow
+    container_name: airflow_webserver_BI
+    entrypoint: ./scripts/webserver_entrypoint.sh
+    restart: always
+    depends_on:
+        - db
+        - scheduler
+    env_file:
+        - .env
+    volumes:
+        - ./dags:/opt/airflow/dags
+        - ./scripts:/opt/airflow/scripts
+    ports:
+        - "8080:8080"
+    networks: 
+      - "BI_network"
+  
+  adminer:
+    image: adminer
+    container_name: "adminer_BI"
+    restart: always
+    ports:
+      - 8282:8080
+    networks: 
+      - BI_network
+
+networks:
+  BI_network:
+    driver: "bridge"
